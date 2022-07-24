@@ -1,7 +1,9 @@
 #include "include/GL/glew.h"		
 #include "include/GLFW/glfw3.h" 
+#include "include/glm/glm.hpp"
 #include <iostream>
 #include <string>
+#include <vector>
 
 #pragma comment(lib, "OpenGL32.lib")
 #pragma comment(lib, "lib/glew32.lib")
@@ -15,6 +17,20 @@ GLuint triangleVertexArrayObject;
 GLuint triangleShaderProgramID;
 GLuint trianglePositionVertexBufferObjectID, triangleColorVertexBufferObjectID;
 
+typedef GLushort Index;
+
+struct Vertex {
+	glm::vec3 pos;
+	glm::vec3 nor;
+	glm::vec2 tex;
+};
+
+struct ObjData {
+	vector<Vertex> vertices;
+	vector<Index> indices;
+};
+
+ObjData objData;
 
 bool initShaderProgram() {
 
@@ -106,20 +122,20 @@ bool defineVertexArrayObject() {
 	//삼각형을 구성하는 vertex 데이터 - position과 color
 	float position[] = {
 		0.0f,  0.5f, 0.0f, //vertex 1  위 중앙
-		0.5f, -0.5f, 0.0f, //vertex 2  오른쪽 아래
-		-0.5f, -0.5f, 0.0f, //vertex 3  왼쪽 아래
-		0.0f,  0.5f, 0.0f,
-		-0.5f, -0.5f, 0.0f,
-		-0.5f, 0.5f, 0.0f
+		-0.5f, -0.5f, 0.0f, //vertex 2  왼쪽 아래
+		0.5f, -0.5f, 0.0f, //vertex 3  오른쪽 아래
+		0.0f,  0.5f, 1.0f, 
+		0.5f, -0.5f, 1.0f, 
+		-0.5f, -0.5f, 1.0f,
 	};
 
 	float color[] = {
 		1.0f, 0.0f, 0.0f, //vertex 1 : RED (1,0,0)
 		0.0f, 1.0f, 0.0f, //vertex 2 : GREEN (0,1,0) 
 		0.0f, 0.0f, 1.0f,  //vertex 3 : BLUE (0,0,1),
-		1.0f, 0.0f, 0.0f, //vertex 1 : RED (1,0,0)
-		0.0f, 1.0f, 0.0f, //vertex 2 : GREEN (0,1,0) 
-		0.0f, 0.0f, 1.0f  //vertex 3 : BLUE (0,0,1)
+		0.0f, 1.0f, 0.0f, //vertex 1 : GREEN (0,1,0) 
+		0.0f, 0.0f, 1.0f, //vertex 2 : BLUE (0,0,1)
+		1.0f, 0.0f, 0.0f  //vertex 3 : RED (1,0,0)
 	};
 
 
@@ -204,7 +220,6 @@ int main()
 
 	glfwSetErrorCallback(errorCallback);
 
-
 	if (!glfwInit()) {
 
 		cerr << "Error: GLFW 초기화 실패" << endl;
@@ -212,7 +227,7 @@ int main()
 	}
 
 
-
+	
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -220,7 +235,7 @@ int main()
 	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
-
+	// 윈도우를 만들어낸다
 	GLFWwindow* window = glfwCreateWindow(
 		800,
 		600,
@@ -305,6 +320,8 @@ int main()
 
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glCullFace(GL_FRONT);
+		glFrontFace(GL_CCW);
 
 
 		count++;
